@@ -1,0 +1,45 @@
+version: '2'
+
+services: 
+  consul:
+    image: consul:0.8.3
+    ports:
+      - "8300:8300"
+      - "8400:8400"
+      - "8500:8500"
+    networks:
+      - sky-net
+
+  product-service:
+    build: 
+      context: ..
+      dockerfile: product-service/Dockerfile
+    image: didiyudha/product-service:1.0
+    environment: 
+      - PRODUCT_SERVICE_PORT=8100
+      - CONSUL_HTTP_ADDR=consul:8500  
+    ports: 
+      - "8100:8100"
+    depends_on:
+      - consul
+    networks:
+      - sky-net
+
+  user-service:
+    build: 
+      context: ..
+      dockerfile: user-service/Dockerfile
+    image: didiyudha/user-service:1.0
+    environment: 
+      - USER_SERVICE_PORT=8080
+      - CONSUL_HTTP_ADDR=consul:8500 
+    ports: 
+      - "8080:8080" 
+    depends_on:
+      - consul
+    networks:
+      - sky-net
+
+networks:
+  sky-net:
+    driver: bridge
